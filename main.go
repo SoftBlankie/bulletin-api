@@ -27,7 +27,7 @@ var db *sql.DB
 
 func GetBulletins() ([]Bulletin, error) {
   const q = `SELECT author, content, created_at FROM bulletins ORDER BY created_at DESC LIMIT 100`
-  
+
   rows, err := db.Query(q)
   if err != nil {
     return nil, err
@@ -50,6 +50,8 @@ func GetBulletins() ([]Bulletin, error) {
 }
 
 function AddBulletin(bulletin Bulletin) error {
+  const q = `INSERT INTO bulletins(author, content, created_at) VALUES ($1, $2, $3)`
+  _, err := db.Exec(q, bulletin.Author, bulletin.Content, bulletin.CreatedAt)
   return nil
 }
 
