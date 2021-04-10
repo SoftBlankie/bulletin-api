@@ -13,7 +13,7 @@ const {
     id serial PRIMARY KEY,
     author text NOT NULL,
     content text NOT NULL,
-    created_at timestamp with time zone DEFAULT current_timestamp
+    created_at timestamp with time zone DEFAULT current_timestamp)
     `
 }
 
@@ -46,7 +46,7 @@ func GetBulletins() ([]Bulletin, error) {
     results = append(results, Bulletin(author, content, createdAt))
   }
 
-  return nil, nil
+  return results, nil
 }
 
 function AddBulletin(bulletin Bulletin) error {
