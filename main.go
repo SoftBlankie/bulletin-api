@@ -1,21 +1,27 @@
 package main
 
-import {
-  "github.com/lib/pq"
-}
+import (
+  "database/sql"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"log"
+	"net/http"
+  "time"
 
-const {
+  _ "github.com/lib/pq"
+)
+
+const (
   DbHost = "db"
   DbUser = "postgres-dev"
-  DbPassword = "mySecretPassword"
+  DbPassword = "mysecretpassword"
   DbName = "dev"
   Migration = `CREATE TABLE IF NOT EXISTS bulletins (
     id serial PRIMARY KEY,
     author text NOT NULL,
     content text NOT NULL,
-    created_at timestamp with time zone DEFAULT current_timestamp)
-    `
-}
+    created_at timestamp with time zone DEFAULT current_timestamp)`
+)
 
 type Bulletin struct {
   Author string `json:"author" binding:"required"`
@@ -38,21 +44,21 @@ func GetBulletins() ([]Bulletin, error) {
   for rows.Next() {
     var author string
     var content string
-    var createAt time.Time
+    var createdAt time.Time
     err = rows.Scan(&author, &content, &createdAt)
     if err != nil {
       return  nil, err
     }
-    results = append(results, Bulletin(author, content, createdAt))
+    results = append(results, Bulletin{author, content, createdAt})
   }
 
   return results, nil
 }
 
-function AddBulletin(bulletin Bulletin) error {
+func AddBulletin(bulletin Bulletin) error {
   const q = `INSERT INTO bulletins(author, content, created_at) VALUES ($1, $2, $3)`
   _, err := db.Exec(q, bulletin.Author, bulletin.Content, bulletin.CreatedAt)
-  return nil
+  return err
 }
 
 func main() {
@@ -60,7 +66,7 @@ func main() {
 
   r := gin.Default()
   r.GET("/board", func(context *gin.Context) {
-    result, err = GetBulletins()
+    results, err := GetBulletins()
     if err != nil {
       context.JSON(http.StatusInternalServerError, gin.H{"status": "internal_error: " + err.Error()})
       return
@@ -77,7 +83,7 @@ func main() {
         context.JSON(http.StatusInternalServerError, gin.H{"status": "internal_error: " + err.Error()})
         return
       }
-      context.JSON(http.StatusOK, gin.H{"status": "ok")
+      context.JSON(http.StatusOK, gin.H{"status": "ok"})
     }
   })
 
@@ -89,7 +95,7 @@ func main() {
 
   defer db.Close()
 
-  _, err = db.query(Migration)
+  _, err = db.Query(Migration)
   if err != nil {
     log.Println("failed to run migrations", err.Error())
     return
