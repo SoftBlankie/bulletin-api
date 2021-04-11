@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.service.type: LoadBalancer
+    kompose.version: 1.22.0 (955b78124)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: bulletin-api
+  name: bulletin-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: bulletin-api
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.service.type: LoadBalancer
+        kompose.version: 1.22.0 (955b78124)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/bulletinnet: "true"
+        io.kompose.service: bulletin-api
+    spec:
+      containers:
+        - env:
+            - name: GET_HOSTS_FROM
+              value: dns
+          image: lightning53/bulletin-api:v1
+          name: bulletin-api
+          ports:
+            - containerPort: 8080
+          resources: {}
+          volumeMounts:
+            - mountPath: /go/src/bulletin-api
+              name: bulletin-api-claim0
+      hostname: bulletin-api
+      restartPolicy: Always
+      volumes:
+        - name: bulletin-api-claim0
+          persistentVolumeClaim:
+            claimName: bulletin-api-claim0
+status: {}

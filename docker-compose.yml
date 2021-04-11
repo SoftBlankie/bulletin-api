@@ -17,7 +17,7 @@ services:
 
   bulletin-api:
     container_name: bulletin-api
-    image: softblankie/bulletin-api:v1
+    image: lightning53/bulletin-api:v1
     hostname: bulletin-api
     build:
       context: .
